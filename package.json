@@ -10,10 +10,10 @@
     "start": "concurrently \"nodemon \\\"server/main.js\\\"\" \"http-server \\\"client/\\\"\"",
     "test": "mocha \"test/server\" & http-server -p 8081",
     "client": "http-server \"client/\"",
-    "sass-compile": "node-sass client/styles/main.scss client/styles/main.css --output-style compressed",
-    "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch --output-style compressed",
+    "server": "node \"server/main.js\"",
     "server-dev": "nodemon \"server/main.js\"",
-    "server": "node \"server/main.js\""
+    "sass-compile": "node-sass client/styles/main.scss client/styles/main.css --output-style compressed",
+    "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch --output-style compressed"
   },
   "author": "cN3rd",
   "license": "ISC",
