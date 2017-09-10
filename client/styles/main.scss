@@ -1,0 +1,402 @@
+// varaiables
+$babble-dark: #353744;
+$babble-light: #f9f9f9;
+$babble-green: #61d290;
+$babble-border: #d7d7d7;
+$babble-mobile: 320px;
+$babble-desktop: 628px;
+
+$babble-text-regular: #616161;
+$babble-text-dark: #292929;
+$babble-font-family: 'Nunito', Arial, sans-serif;
+
+// mixins
+@mixin buttonGrad($grad_top, $grad_bottom) {
+  $grad_blended: mix($grad_top, $grad_bottom);
+  background: $grad_blended;
+  background: linear-gradient(to bottom, $grad_top, $grad_bottom);
+  &:hover {
+    background: linear-gradient(to bottom, lighten($grad_top,10%), lighten($grad_bottom,10%));
+  }
+
+  &:active {
+    background: linear-gradient(to bottom, darken($grad_top,10%), darken($grad_bottom,10%));
+  }
+}
+
+/*
+    Chrome Resets
+*/
+* {
+    -webkit-margin-after: 0;
+    -webkit-margin-before: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end:0;
+    -webkit-padding-start: 0;
+    -webkit-padding-end: 0;
+    margin:0;
+    padding:0;
+}
+html,body {
+    height: 100%;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: $babble-text-regular;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+/*
+    Typography
+*/
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Nunito Regular'), local('Nunito-Regular'), url(https://fonts.gstatic.com/s/nunito/v8/qEjAkCC_I8-NsX6aYiQHCfesZW2xOQ-xsNqO47m55DA.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Nunito Bold'), local('Nunito-Bold'), url(https://fonts.gstatic.com/s/nunito/v8/uGMHL94-PyB0HAplpWqScBJtnKITppOI_IvcXXDNrsc.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Nunito Regular'), local('Nunito-Regular'), url(https://fonts.gstatic.com/s/nunito/v8/cSNs3NwpEgPVRQzvkh3NeQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Nunito Bold'), local('Nunito-Bold'), url(https://fonts.gstatic.com/s/nunito/v8/TttUCfJ272GBgSKaOaD7KltXRa8TVwTICgirnJhmVJw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+/*
+  Utils
+*/
+.u-hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.u-display-hidden {
+  position: absolute; 
+  overflow: hidden; 
+  clip: rect(0 0 0 0); 
+  height: 1px; width: 1px; 
+  margin: -1px; padding: 0; border: 0; 
+}
+
+/*
+  Flexgrid
+*/
+.FlexGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  &--fullsize {
+    height: 100%;
+    width: 100%;
+  }
+
+  &-cell--isFull {
+    flex: 1;
+  }  
+}
+
+.FlexGridRow {
+  display: flex;
+  flex-direction: row;
+
+  &--fullsize {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+/* General Styling */
+body {
+  background: $babble-light;
+  font-family: $babble-font-family;
+  font-size: 1rem;
+}
+
+/*
+  Header
+*/
+header.MainHeader {
+  background: $babble-dark;
+  min-height: 5.5rem;
+  height: 7.5%;
+  padding: 1rem;
+  width: 100%;
+
+  & img.MainHeader-logo {
+    height: 100%;
+  }
+  
+  & h1.MainHeader-text {
+    color: $babble-light;
+    vertical-align: middle;
+  }
+}
+
+/*
+  Navigation Bar
+*/
+.MainSection {
+  width: 100%;
+}
+
+/*
+  Chat Header
+*/
+.ChatView-header {
+  padding: 1rem;
+  color: $babble-text-dark;
+  
+  &-h2 {
+    font-weight: normal;
+  }
+}
+
+.ChatView-header-statList {
+  font-weight: bold;
+  align-self: center;
+  justify-content: bottom;
+
+  dt, dd {
+    display: inline;
+  }
+
+  dt {
+    span {
+      @extend .u-display-hidden;
+    }
+    img {
+      height: 1rem;
+      margin-bottom: -0.15rem;
+    }
+  }
+}
+
+/*
+  Main Chat View
+*/
+.ChatWindow {
+  padding: 1rem;
+  overflow-y: auto;    
+}
+
+.Message {
+  display: flex;
+  margin-top: 1em;
+  word-break:break-all;
+  
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  &:last-of-type {
+    margin-bottom: 1rem;
+  }
+
+  &-image {
+    display: block;
+    align-self: flex-start;
+    border-radius: 50%;
+    height: 48px;
+    margin-right: 0.5rem;
+  }
+
+  &-inner {
+    display: block;
+    background: #fff;
+    border: 1px solid $babble-border;
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  &-author {
+    font-weight: bold;
+    align-self: center;    
+    color: $babble-text-dark;
+    margin-right: 0.5rem;
+  }
+
+  &-time {
+    color: #cfcfcf;
+    align-self: center;    
+    font-size: 0.75rem;
+  }
+
+  &-deleteBtn {
+    background: transparent;
+    margin-left: auto;
+    align-self: center;    
+    border-width: 0px;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/*
+  New message
+*/
+.ChatNewMessageForm {
+  min-height: 4rem;
+  width: 100%;
+  
+  & form {
+    max-height: 100%;
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  &-content {
+    box-sizing: border-box;    
+    max-height: 300px;
+    border: 1px solid $babble-border;
+    font-family: $babble-font-family;
+    color: $babble-text-regular;    
+    font-size: 1rem;
+    padding: 1rem;
+    flex: 1;
+    resize: none;
+  }
+
+  &-submit {
+    border-width: 0px;
+    width: 100px;
+    height: 100px;
+    margin-left: 1rem;
+    background: transparent url(../images/send.png) no-repeat;
+    background-position: center center;
+    background-size: contain;
+  }
+}
+
+/*
+  Signup Dialog
+*/
+::backdrop {
+  background: rgba($babble-dark, 0.6);
+}
+
+.SignupDialog {
+  width: 85%;
+  height: 85%;
+  max-height: 60%;
+  border: 1px solid $babble-border;
+  background: $babble-light;
+  padding: 1rem;
+  margin: 0 auto;
+
+  input, button {
+    border: 1px solid $babble-border;
+    font-family: $babble-font-family;
+    padding: 0.45rem;
+    margin: 0.45rem;
+      font-weight: bold;
+
+    &:last-child {
+      margin-right: 0px;
+    }
+  }
+
+  &-header {
+    height: 2rem;
+  }
+
+  &-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100% - 3rem);
+  }
+
+  &-formRow {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    margin: 1em 0;
+  }
+
+  &-formRow--last {
+    margin-top: auto;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-bottom: 0;
+  }
+
+  
+  &-submitBtn {
+    @include buttonGrad(#7cd650,#48a371);
+    color: #ffffff;
+  }
+  
+  &-cancelBtn {
+    @include buttonGrad(#d4d4d4,#b5b5b5);
+  }
+}
+
+@media only screen and (max-width: $babble-desktop) {
+  .u-hidden-mobile {
+    display: none;
+  }
+}
+@media screen and (min-width: $babble-desktop) {
+  // 
+  .Nav {
+    height: 100%;
+    width: 250px;
+    background-color: $babble-green;
+  }
+
+  //
+  .ChatNewMessageForm {
+    background: #ffffff;
+    border-top: 1px solid $babble-border;
+
+    form {
+      padding: 0;
+    }
+
+    &-content {
+      border: 0px solid transparent;
+    }
+
+    &-submit {
+      margin: 0 1rem;
+    }
+  }
+
+  // signup dialog
+  .SignupDialog {
+    max-width: 445px;
+    max-height: 225px;  
+
+    &-formRow {
+      flex-direction: row;
+      align-items: center;
+
+      input {
+        width: 80%;
+      }
+    }
+  }
+}

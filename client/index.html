@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Babble</title>
+</head>
+
+<body>
+    <div class="FlexGrid FlexGrid--fullsize">
+        <header class="MainHeader">
+            <img src="images/logo.png" class="MainHeader-logo" aria-label="Babble" alt="" />
+            <h1 class="MainHeader-text u-display-hidden">Babble</h1>
+        </header>
+
+        <main class="MainSection FlexGridRow FlexGrid-cell--isFull">
+            <nav class="Nav">
+                <!-- Hachana Le'Mazgan -->
+            </nav>
+
+            <section class="ChatView FlexGrid-cell--isFull FlexGrid">
+                <!-- ChatHeader -->
+                <header class="ChatView-header FlexGridRow">
+                    <h1 class="ChatView-header-h2 FlexGrid-cell--isFull">Vegans</h1>
+                    <dl class="ChatView-header-statList">
+                        <dt>
+                            <span>Messages</span>
+                            <img src="images/chat.svg" alt="" />
+                        </dt>
+                        <dd id="js-stat-messages">0</dd>
+                        <dt>
+                            <span>Connected Users</span>
+                            <img src="images/person.svg" alt="" />
+                        </dt>
+                        <dd id="js-stat-people">0</dd>
+                    </dl>
+                </header>
+                <!-- /ChatHeader -->
+
+                <!-- ChatWindow -->
+                <section class="ChatWindow FlexGrid-cell--isFull" id="js-chatContainer">
+                    <ul id="js-chatWindow" class="FlexGrid--fullsize">
+                    </ul>
+                </section>
+                <!-- /ChatWindow -->
+
+                <!-- NewMessage -->
+                <section class="ChatNewMessageForm">
+                    <form class="FlexGridRow" id="js-newMessage-form" method="POST">
+                        <label for="newMessage-contents" class="u-display-hidden">Message Contents</label>
+                        <textarea rows="5" id="js-newMessage-content" class="ChatNewMessageForm-content" tabindex="0"></textarea>
+                        <button type="submit" class="ChatNewMessageForm-submit" aria-label="Send Message" tabindex="0"></button>
+                    </form>
+                </section>
+                <!-- /NewMessage -->
+
+            </section>
+        </main>
+    </div>
+
+    <!-- SignupDialog -->
+    <dialog class="SignupDialog js-signupDialog">
+        <h2 class="SignupDialog-header">
+            Who are you?
+        </h2>
+        <form method="dialog" class="SignupDialog-form">
+            <div class="SignupDialog-formRow">
+                <label for="signup-fullname">Full name:</label>
+                <input type="text" id="signup-fullname" name="signup-fullname" value="Alex Krul" />
+            </div>
+            <div class="SignupDialog-formRow">
+                <label for="signup-email">Email: </label>
+                <input type="email" id="signup-email" name="signup-email" value="alex_krul@gmail.com" />
+            </div>
+            <div class="SignupDialog-formRow SignupDialog-formRow--last">
+                <button type="button" class="SignupDialog-cancelBtn js-stayAnonBtn">Stay Anonymous</button>
+                <button type="submit" class="SignupDialog-submitBtn js-loginBtn">Save</button>
+            </div>
+        </form>
+    </dialog>
+    <!-- /SignupDialog -->
+
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>

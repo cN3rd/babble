@@ -1,0 +1,49 @@
+{
+  "name": "babble",
+  "version": "1.0.0",
+  "description": "A small chat written in JS.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "concurrently \"nodemon \\\"server/main.js\\\"\" \"http-server \\\"client/\\\"\"",
+    "test": "mocha \"test/server\" & http-server -p 8081",
+    "client": "http-server \"client/\"",
+    "sass-compile": "node-sass client/styles/main.scss client/styles/main.css --output-style compressed",
+    "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch --output-style compressed",
+    "server-dev": "nodemon \"server/main.js\"",
+    "server": "node \"server/main.js\""
+  },
+  "author": "cN3rd",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "deep-equals": "0.0.2",
+    "express": "^4.15.4",
+    "md5": "^2.2.1",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "chai-http": "^3.0.0",
+    "concurrently": "^3.5.0",
+    "http-server": "^0.10.0",
+    "mocha": "^3.5.0",
+    "node-sass": "^4.5.3",
+    "nodemon": "^1.11.0",
+    "sinon": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cN3rd/babble.git"
+  },
+  "keywords": [
+    "chat",
+    "longpolling"
+  ],
+  "bugs": {
+    "url": "https://github.com/cN3rd/babble/issues"
+  },
+  "homepage": "https://github.com/cN3rd/babble#readme"
+}
