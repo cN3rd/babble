@@ -1,9 +1,10 @@
 // main babble object.
 (function () {
     debug = false;
+    host = "http://localhost:9000";
     'use strict';
     window.Babble = function () {
-        var session = {
+        let session = {
             currentMessage: "",
             userInfo: {
                 name: "",
@@ -15,7 +16,9 @@
         if (debug) {
             localStorage.clear();
         } else {
-            session = JSON.parse(localStorage.getItem("babble")) || session;
+            let lastSession = JSON.parse(localStorage.getItem("babble"));
+            if (lastSession || session.userInfo.email !== "")
+                session = lastSession;
         }
 
         function getUUID() {
@@ -23,7 +26,7 @@
                 method: "GET",
                 action: "http://localhost:9000/uuid",
                 success: function (data) {
-                    session.uuid = data;
+                    window.Babble.session.uuid = data;
                 }
             })
         }
@@ -45,9 +48,11 @@
         };
 
         let register = function (userInfo) {
+            if (userInfo.email === "")
+                getUUID();
             ajax({
                 method: "POST",
-                action: "http://localhost:9000/login",
+                action: `${host}/login`,
                 data: JSON.stringify({ uuid: window.Babble.session.uuid })
             })
             updateLocalStorage(userInfo);
@@ -56,7 +61,7 @@
         let getMessages = function (counter, callback) {
             ajax({
                 method: 'GET',
-                action: 'http://localhost:9000/messages?counter=' + counter,
+                action: `${host}/messages?counter=${counter}`,
                 request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
@@ -67,7 +72,7 @@
         let postMessage = function (message, callback) {
             ajax({
                 method: 'POST',
-                action: 'http://localhost:9000/messages',
+                action: `${host}/messages`,
                 request_id: window.Babble.session.uuid,
                 data: JSON.stringify(message),
                 success: function (data) {
@@ -79,7 +84,7 @@
         let deleteMessage = function (id, callback) {
             ajax({
                 method: 'DELETE',
-                action: 'http://localhost:9000/messages/' + id,
+                action: `${host}/messages/${id}`,
                 request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
@@ -90,7 +95,7 @@
         let getStats = function (callback) {
             ajax({
                 method: 'GET',
-                action: 'http://localhost:9000/stats',
+                action: `${host}/stats`,
                 request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
@@ -116,7 +121,6 @@
     }();
 
     /* GUI FUNCTIONS */
-
     function timeToTimestamp(date) {
         let hours = ("0" + date.getHours()).slice(-2);
         let minutes = ("0" + date.getMinutes()).slice(-2);
@@ -135,8 +139,11 @@
             message.imageUrl = "./images/anon.png";
         }
 
-        let buttoncode = message.email == window.Babble.session.userInfo.email ? "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>" : "";
-
+        let buttoncode = "";
+        console.log(message.email === window.Babble.session.email);
+        if ((message.uuid && message.uuid === window.Babble.session.uuid) || (!message.uuid && message.email === window.Babble.session.userInfo.email)) {
+            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>";
+        }
 
         // handle template code
         return `<li class="Message" id="msg-${message.id}">
@@ -162,7 +169,6 @@
 
     function deleteMessageDOM(messageID) {
         window.Babble.chatWindow.removeChild(document.getElementById("msg-" + messageID));
-        console.log(messageID);
     }
 
     // adds a message visually on the screen
@@ -251,39 +257,41 @@
     // function that registers certain events.
     (function load() {
         // signup dialog
-        let dialog = document.getElementsByClassName("js-signupDialog")[0];
-        let loginBtn = document.getElementsByClassName("js-loginBtn")[0];
-        let anonBtn = document.getElementsByClassName("js-stayAnonBtn")[0];
+        let loginBtn = document.getElementById("js-loginBtn");
+        let anonBtn = document.getElementById("js-stayAnonBtn");
 
         loginBtn.addEventListener("click", function (e) {
+            e.preventDefault();
             window.Babble.register({
                 name: document.getElementById("signup-fullname").value,
                 email: document.getElementById("signup-email").value
             });
-            dialog.close();
+            initiateLongPolls();
+            document.getElementById("js-signupDialog").classList.add("u-hidden");
         });
 
         anonBtn.addEventListener("click", function (e) {
+            e.preventDefault();
             window.Babble.register({
                 name: "",
                 email: ""
             });
-            dialog.close();
+            initiateLongPolls();
+            document.getElementById("js-signupDialog").classList.add("u-hidden");
         });
 
         // new message form events
         let newMsgForm = document.getElementById("js-newMessage-form");
-        let textarea = document.getElementById("js-newMessage-content");
+        let textarea = document.getElementById("newMessage-contents");
         newMsgForm.addEventListener("submit", e => sendMessage(e, textarea));
         autoResize(textarea, 100, 300);
 
         // event listeners
         window.addEventListener('load', function (event) {
-            if (window.Babble.session.userInfo.email === "") {
-                dialog.showModal();
-            }
-            else {
+            if (window.Babble.session.userInfo.email !== "") {
+                document.getElementById("js-signupDialog").remove();
                 window.Babble.register(window.Babble.session.userInfo);
+                initiateLongPolls();
             }
         });
 
@@ -292,35 +300,38 @@
         });
     })();
 
-    // long polling for messages
-    (function long_poll() {
-        window.Babble.getMessages(window.Babble.counter, function (data) {
-            if (data.delete) {
-                // delete from dom.
-                deleteMessageDOM(data.id);
-            }
-            else {
-                // update internal counter
-                window.Babble.counter += data.length;
 
-                // visuallly display on the DOM
-                data.forEach(function (message) {
-                    addMessageDOM(message);
-                });
+    function initiateLongPolls() {
+        // long polling for messages
+        (function long_poll() {
+            window.Babble.getMessages(window.Babble.counter, function (data) {
+                if (data.delete) {
+                    // delete from dom.
+                    deleteMessageDOM(data.id);
+                }
+                else {
+                    // update internal counter
+                    window.Babble.counter += data.length;
 
-            }
-            // call the next long poll
-            long_poll();
-        });
-    })();
+                    // visuallly display on the DOM
+                    data.forEach(function (message) {
+                        addMessageDOM(message);
+                    });
 
-    // long polling for stats.
-    (function long_poll_updates() {
-        window.Babble.getStats(function (data) {
-            window.Babble.statsMessages.innerHTML = data.messages;
-            window.Babble.statsPeople.innerHTML = data.users;
+                }
+                // call the next long poll
+                long_poll();
+            });
+        })();
 
-            long_poll_updates();
-        });
-    })();
+        // long polling for stats.
+        (function long_poll_updates() {
+            window.Babble.getStats(function (data) {
+                window.Babble.statsMessages.innerHTML = data.messages;
+                window.Babble.statsPeople.innerHTML = data.users;
+
+                long_poll_updates();
+            });
+        })();
+    }
 })();

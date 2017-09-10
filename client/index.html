@@ -9,6 +9,7 @@
 </head>
 
 <body>
+
     <div class="FlexGrid FlexGrid--fullsize">
         <header class="MainHeader">
             <img src="images/logo.png" class="MainHeader-logo" aria-label="Babble" alt="" />
@@ -50,7 +51,7 @@
                 <section class="ChatNewMessageForm">
                     <form class="FlexGridRow" id="js-newMessage-form" method="POST">
                         <label for="newMessage-contents" class="u-display-hidden">Message Contents</label>
-                        <textarea rows="5" id="js-newMessage-content" class="ChatNewMessageForm-content" tabindex="0"></textarea>
+                        <textarea rows="5" id="newMessage-contents" class="ChatNewMessageForm-content" tabindex="0"></textarea>
                         <button type="submit" class="ChatNewMessageForm-submit" aria-label="Send Message" tabindex="0"></button>
                     </form>
                 </section>
@@ -59,29 +60,29 @@
             </section>
         </main>
     </div>
-
     <!-- SignupDialog -->
-    <dialog class="SignupDialog js-signupDialog">
-        <h2 class="SignupDialog-header">
-            Who are you?
-        </h2>
-        <form method="dialog" class="SignupDialog-form">
-            <div class="SignupDialog-formRow">
-                <label for="signup-fullname">Full name:</label>
-                <input type="text" id="signup-fullname" name="signup-fullname" value="Alex Krul" />
-            </div>
-            <div class="SignupDialog-formRow">
-                <label for="signup-email">Email: </label>
-                <input type="email" id="signup-email" name="signup-email" value="alex_krul@gmail.com" />
-            </div>
-            <div class="SignupDialog-formRow SignupDialog-formRow--last">
-                <button type="button" class="SignupDialog-cancelBtn js-stayAnonBtn">Stay Anonymous</button>
-                <button type="submit" class="SignupDialog-submitBtn js-loginBtn">Save</button>
-            </div>
-        </form>
-    </dialog>
+    <div class="SignupDialog-container" id="js-signupDialog">
+        <div class="SignupDialog">
+            <h2 class="SignupDialog-header">
+                Who are you?
+            </h2>
+            <form method="post" class="SignupDialog-form">
+                <div class="SignupDialog-formRow">
+                    <label for="signup-fullname">Full name:</label>
+                    <input type="text" id="signup-fullname" name="signup-fullname" value="Alex Krul" />
+                </div>
+                <div class="SignupDialog-formRow">
+                    <label for="signup-email">Email: </label>
+                    <input type="email" id="signup-email" name="signup-email" value="alex_krul@gmail.com" />
+                </div>
+                <div class="SignupDialog-formRow SignupDialog-formRow--last">
+                    <button type="button" class="SignupDialog-cancelBtn" id="js-stayAnonBtn">Stay Anonymous</button>
+                    <button type="submit" class="SignupDialog-submitBtn" id="js-loginBtn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- /SignupDialog -->
-
     <link rel="stylesheet" href="styles/main.css">
     <script src="scripts/main.js"></script>
 </body>

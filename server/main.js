@@ -101,7 +101,13 @@ app.post("/messages",
         messages.addMessage(message);
 
         // add user metadata
-        messages.setSender(message.id, req.get("X-Request-Id"));
+        // TODO: check
+        if (message.email === "") {
+            message.uuid = req.get("X-Request-Id");
+            messages.setSender(message.id, req.get("X-Request-Id"));
+        } else {
+            messages.setSender(message.id, message.email);
+        }
 
         // notify all users
         emitter.emit("add", message);
@@ -117,7 +123,9 @@ app.delete("/messages/:id",
     extensions.noQueryKeys,
     extensions.customCheck((req, res, next) => Number.isInteger(+req.params.id), "an id is required"),
     extensions.customCheck((req, res, next) => messages.getSingle(+req.params.id), "message does not exist"),
-    extensions.customCheck((req, res, next) => messages.getSender(+req.params.id) === req.get("X-Request-Id"), "user cannot delete messages he doesn't own."),
+    extensions.customCheck(function (req, res, next) {
+        return messages.getSender(+req.params.id) === messages.getSingle(+req.params.id).email || req.get("X-Request-Id"); // TODO: check
+    }, "user cannot delete messages he doesn't own."),
     function (req, res, next) {
         // delete messsage from db
         let success = messages.deleteMessage(req.params.id);

@@ -237,7 +237,7 @@ header.MainHeader {
 
   &-time {
     color: #cfcfcf;
-    align-self: center;    
+    align-self: flex-end;    
     font-size: 0.75rem;
     margin-right: 0.5rem;
   }
@@ -268,7 +268,6 @@ header.MainHeader {
   }
 
   &-content {
-    box-sizing: border-box;    
     max-height: 300px;
     border: 1px solid $babble-border;
     font-family: $babble-font-family;
@@ -293,18 +292,29 @@ header.MainHeader {
 /*
   Signup Dialog
 */
-::backdrop {
-  background: rgba($babble-dark, 0.6);
-}
-
 .SignupDialog {
-  width: 85%;
-  height: 85%;
-  max-height: 60%;
-  border: 1px solid $babble-border;
-  background: $babble-light;
-  padding: 1rem;
-  margin: 0 auto;
+  &-container {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background-color: $babble-dark; /* Fallback color */
+    background: rgba($babble-dark, 0.6); /* Black w/ opacity */
+  }
+
+  & {
+    width: 85%;
+    height: 85%;
+    max-height: 60%;
+    border: 1px solid $babble-border;
+    background: $babble-light;
+    padding: 1rem;
+    margin: 0 auto;
+  }
 
   input, button {
     border: 1px solid $babble-border;
