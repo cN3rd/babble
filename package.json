@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "concurrently \"nodemon \\\"server/main.js\\\"\" \"http-server \\\"client/\\\"\"",
-    "test": "mocha \"test/server\" & http-server -p 8081",
+    "test": "concurrently \"mocha \\\"test/server\\\"\" \"http-server -p 8081\"",
     "client": "http-server \"client/\"",
     "server": "node \"server/main.js\"",
     "server-dev": "nodemon \"server/main.js\"",

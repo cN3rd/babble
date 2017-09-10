@@ -1,7 +1,8 @@
 let storage = [];
+let messageSenders = [];
 let lastMsgId = -1;
 
-let addMessage = function (message) {
+function addMessage(message) {
     // increase the current ID and Inject it into msg.
     message.id = ++lastMsgId;
     storage.push(message);
@@ -10,15 +11,15 @@ let addMessage = function (message) {
     return lastMsgId;
 }
 
-let getSingleMessage = function (id) {
+function getSingleMessage(id) {
     return storage.find((msg) => { return msg.id === id; });
 }
 
-let getMessages = function (counter) {
+function getMessages(counter) {
     return storage.slice(counter);
 }
 
-let deleteMessage = function (id) {
+function deleteMessage(id) {
     id = +id;
     msgId = storage.findIndex(msg => msg.id === id);
 
@@ -31,6 +32,9 @@ let deleteMessage = function (id) {
 module.exports = {
     addMessage: addMessage,
     getMessages: getMessages,
+    getSingle: getSingleMessage,
+    setSender: (mid, sender_id) => messageSenders[mid] = sender_id,
+    getSender: (mid) => messageSenders[mid],
     deleteMessage: deleteMessage,
     count: () => storage.length
 };

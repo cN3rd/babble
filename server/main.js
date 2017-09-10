@@ -1,11 +1,11 @@
 "use strict";
 
-let express = require("express");
-let cors = require("cors");
-let events = require("events");
-let md5 = require("md5");
-let uuid = require("uuid/v4");
+const express = require("express");
+const cors = require("cors");
+const events = require("events");
+const md5 = require("md5");
 let extensions = require("./express-ext");
+let users = require("./user-utils");
 let messages = require("./messages-util");
 
 // useful consts
@@ -13,10 +13,10 @@ let respondWithError = extensions.respondWithError;
 
 // app initialization
 let app = extensions.extend(express());
-let users = new Set();
+
+// event emitters
 let emitter = new events.EventEmitter();
 let statEmitter = new events.EventEmitter();
-
 statEmitter.setMaxListeners(0);
 emitter.setMaxListeners(0);
 
@@ -28,6 +28,7 @@ app.use(cors());
 app.use(function (req, res, next) {
     if (req.method === "OPTIONS") {
         res.sendStatus(204);
+        console.log("hello");
     }
     else {
         next();
@@ -99,7 +100,9 @@ app.post("/messages",
         let message = req.body;
         messages.addMessage(message);
 
-        // TODO: add user metadata
+        // add user metadata
+        messages.setSender(message.id, req.get("X-Request-Id"));
+
         // notify all users
         emitter.emit("add", message);
         statEmitter.emit("stats", "");
@@ -113,10 +116,9 @@ app.onlyAllow("/messages/:id", ["DELETE"]);
 app.delete("/messages/:id",
     extensions.noQueryKeys,
     extensions.customCheck((req, res, next) => Number.isInteger(+req.params.id), "an id is required"),
+    extensions.customCheck((req, res, next) => messages.getSingle(+req.params.id), "message does not exist"),
+    extensions.customCheck((req, res, next) => messages.getSender(+req.params.id) === req.get("X-Request-Id"), "user cannot delete messages he doesn't own."),
     function (req, res, next) {
-        // TODO: check id
-        console.log(JSON.stringify(req.params.id));
-
         // delete messsage from db
         let success = messages.deleteMessage(req.params.id);
 
@@ -135,7 +137,7 @@ app.get("/stats",
     function (req, res, next) {
         statEmitter.once("stats", function (data) {
             res.json({
-                users: users.size,
+                users: users.count(),
                 messages: messages.count()
             });
         });
@@ -143,7 +145,7 @@ app.get("/stats",
 
 app.onlyAllow("/uuid", ["GET"]);
 app.get("/uuid", function (req, res, next) {
-    res.end(uuid());
+    res.end(users.uuid());
 });
 
 // error handlers

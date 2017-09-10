@@ -59,12 +59,12 @@ const onlyKeys = (property) => (keys) => function (req, res, next) {
 };
 
 
-const customCheck = (checkFunc, data = "") => function (req, res, next) {
+const customCheck = (checkFunc, errorMessage = "") => function (req, res, next) {
     if (checkFunc(req, res, next)) {
         return next();
     }
     else {
-        respondWithError(res, 400, data);
+        respondWithError(res, 400, errorMessage);
     }
 };
 

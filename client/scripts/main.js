@@ -3,7 +3,7 @@
     debug = false;
     'use strict';
     window.Babble = function () {
-        let session = {
+        var session = {
             currentMessage: "",
             userInfo: {
                 name: "",
@@ -15,7 +15,7 @@
         if (debug) {
             localStorage.clear();
         } else {
-            session = JSON.parse(localStorage.getItem("babble"));
+            session = JSON.parse(localStorage.getItem("babble")) || session;
         }
 
         function getUUID() {
@@ -34,9 +34,9 @@
         }
 
         let updateLocalStorage = function (userInfo) {
-            session.userInfo.name = userInfo.name;
-            session.userInfo.email = userInfo.email;
-            localStorage.setItem('babble', JSON.stringify(session));
+            window.Babble.session.userInfo.name = userInfo.name;
+            window.Babble.session.userInfo.email = userInfo.email;
+            localStorage.setItem('babble', JSON.stringify(window.Babble.session));
         };
 
         let updateCurrentMessage = function (messageContent) {
@@ -48,7 +48,7 @@
             ajax({
                 method: "POST",
                 action: "http://localhost:9000/login",
-                data: JSON.stringify({ uuid: session.uuid })
+                data: JSON.stringify({ uuid: window.Babble.session.uuid })
             })
             updateLocalStorage(userInfo);
         };
@@ -57,6 +57,7 @@
             ajax({
                 method: 'GET',
                 action: 'http://localhost:9000/messages?counter=' + counter,
+                request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -67,9 +68,9 @@
             ajax({
                 method: 'POST',
                 action: 'http://localhost:9000/messages',
+                request_id: window.Babble.session.uuid,
                 data: JSON.stringify(message),
                 success: function (data) {
-                    console.log(data);
                     callback(JSON.parse(data));
                 }
             });
@@ -79,6 +80,7 @@
             ajax({
                 method: 'DELETE',
                 action: 'http://localhost:9000/messages/' + id,
+                request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -89,6 +91,7 @@
             ajax({
                 method: 'GET',
                 action: 'http://localhost:9000/stats',
+                request_id: window.Babble.session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -125,27 +128,28 @@
         let date = new Date(message.timestamp * 1);
 
         // handle button code
-        let buttoncode = "";
         if (message.name !== "" && message.email !== "") {
-            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>";
             message.imageUrl = `http://localhost:9000/avatar/?mail=${message.email}`;
         } else {
             message.name = "Anonymous";
             message.imageUrl = "./images/anon.png";
         }
 
+        let buttoncode = message.email == window.Babble.session.userInfo.email ? "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>" : "";
+
+
         // handle template code
         return `<li class="Message" id="msg-${message.id}">
-                <img src="${message.imageUrl}" alt="" class="Message-image" />
-                <section class="Message-inner">
-                    <header class="Message-innerHead FlexGridRow">
-                        <span class="Message-author">${message.name}</span>
-                        <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
-                    </header>
-                    <div class="Message-inner-contents">
-                        ${message.message}
-                    </div>
-                </section>
+                    <img src="${message.imageUrl}" alt="" class="Message-image" />
+                    <section class="Message-inner">
+                        <header class="Message-innerHead FlexGridRow">
+                            <span class="Message-author">${message.name}</span>
+                            <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
+                        </header>
+                        <div class="Message-inner-contents">
+                            ${message.message}
+                        </div>
+                    </section>
                 </li>`;
     }
 
@@ -170,10 +174,7 @@
         let messageDelBtn = messageDOM.getElementsByClassName("js-deleteMsgBtn")[0];
         if (messageDelBtn) {
             messageDelBtn.addEventListener("click", function () {
-                //deleteMessage(message.id);
-                window.Babble.deleteMessage(message.id, function (data) {
-                    console.log(data);
-                })
+                window.Babble.deleteMessage(message.id, function () { })
             });
         }
 
@@ -240,6 +241,9 @@
         }
         if (options.error) {
             xhr.addEventListener('error', options.fail);
+        }
+        if (options.request_id) {
+            xhr.setRequestHeader("X-Request-Id", options.request_id);
         }
         xhr.send(options.data);
     }
