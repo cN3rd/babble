@@ -27,7 +27,7 @@
         if (session.uuid === "" && !window.sinon) {
             ajax({
                 method: "GET",
-                action: "http://localhost:9000/uuid",
+                action: `${host}/uuid`,
                 success: function (data) {
                     session.uuid = data;
                 }
