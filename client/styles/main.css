@@ -122,7 +122,7 @@ header.MainHeader {
 .ChatView-header {
   padding: 1rem;
   color: #292929; }
-  .ChatView-header-h2 {
+  .ChatView-header-h1 {
     font-weight: normal; }
 
 .ChatView-header-statList {
@@ -154,16 +154,17 @@ header.MainHeader {
     display: block;
     align-self: flex-start;
     border-radius: 50%;
-    height: 48px;
+    height: 36px;
     margin-right: 0.5rem; }
   .Message-inner {
     display: block;
     background: #fff;
     border: 1px solid #d7d7d7;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 1rem; }
   .Message-author {
     font-weight: bold;
+    font-style: normal;
     align-self: center;
     color: #292929;
     margin-right: 0.5rem; }
@@ -284,7 +285,7 @@ header.MainHeader {
   .SignupDialog-cancelBtn:active {
     background: linear-gradient(to bottom, #bbbbbb, #9c9c9c); }
 
-@media only screen and (max-width: 628px) {
+@media only screen and (min-width: 320px) and (max-width: 628px) {
   .u-hidden-mobile {
     display: none; } }
 

@@ -12,19 +12,25 @@ function addMessage(message) {
 }
 
 function getSingleMessage(id) {
+    // iterate through storage
     return storage.find((msg) => { return msg.id === id; });
 }
 
 function getMessages(counter) {
+    // returns the slice
     return storage.slice(counter);
 }
 
 function deleteMessage(id) {
+    // parses id and tries to find it
     id = +id;
     msgId = storage.findIndex(msg => msg.id === id);
 
+    // check if message exists
     if (msgId == -1)
         return false;
+
+    // remove if exists
     storage.splice(msgId, 1);
     return true;
 }

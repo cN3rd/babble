@@ -59,15 +59,6 @@ app.post("/logout",
         res.end();
     });
 
-// Avatar support
-app.onlyAllow("/avatar", ["GET"]);
-app.get("/avatar",
-    extensions.onlyQueryKeys(["mail"]),
-    function (req, res, next) {
-        res.redirect(`http://gravatar.com/avatar/${md5(req.query.mail)}`);
-    });
-
-
 // Long Polling
 app.onlyAllow("/messages", ["GET", "POST"]);
 app.get("/messages",
@@ -103,6 +94,7 @@ app.post("/messages",
         // add user metadata
         message.uuid = req.get("X-Request-Id");
         messages.setSender(message.id, req.get("X-Request-Id"));
+        message.imageUrl = `http://gravatar.com/avatar/${md5(message.email.trim().toLowerCase())}`;
 
         // notify all users
         emitter.emit("add", message);

@@ -17,7 +17,7 @@
     };
 
     // babble stuff
-    window.Babble = function () {
+    window.Babble = (function () {
         // load older session if exists
         let lastSession = JSON.parse(localStorage.getItem("babble"));
         if (lastSession)
@@ -109,8 +109,6 @@
         };
 
         return {
-            counter: 0,
-
             chatContainer: document.getElementById("js-chatContainer"),
             chatWindow: document.getElementById("js-chatWindow"),
             statsMessages: document.getElementById("js-stat-messages"),
@@ -124,7 +122,7 @@
 
             updateCurrentMessage: updateCurrentMessage
         };
-    }();
+    })();
 
     // util functions
     function timeToTimestamp(date) {
@@ -195,7 +193,6 @@
 
         // handle button code
         if (message.name !== "" && message.email !== "") {
-            message.imageUrl = `http://localhost:9000/avatar/?mail=${message.email}`;
         } else {
             message.name = "Anonymous";
             message.imageUrl = "./images/anon.png";
@@ -203,15 +200,15 @@
 
         let buttoncode = "";
         if (message.uuid === session.uuid) {
-            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>";
+            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"Delete Message #" + message.id + "\">X</button>";
         }
 
         // handle template code
         return `<li class="Message" id="msg-${message.id}">
                     <img src="${message.imageUrl}" alt="" class="Message-image" />
-                    <section class="Message-inner">
+                    <section class="Message-inner" tabindex="0">
                         <header class="Message-innerHead FlexGridRow">
-                            <span class="Message-author">${message.name}</span>
+                            <cite class="Message-author">${message.name}</cite>
                             <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
                         </header>
                         <div class="Message-inner-contents">

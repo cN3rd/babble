@@ -1,6 +1,5 @@
 const statuses = require('statuses');
 const deep_equals = require('deep-equals');
-// debugging mode
 const debug = true;
 
 // wrapper function to allow only the use of certain methods via express.js

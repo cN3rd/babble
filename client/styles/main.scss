@@ -166,7 +166,7 @@ header.MainHeader {
   padding: 1rem;
   color: $babble-text-dark;
   
-  &-h2 {
+  &-h1 {
     font-weight: normal;
   }
 }
@@ -216,7 +216,7 @@ header.MainHeader {
     display: block;
     align-self: flex-start;
     border-radius: 50%;
-    height: 48px;
+    height: 36px;
     margin-right: 0.5rem;
   }
 
@@ -224,12 +224,13 @@ header.MainHeader {
     display: block;
     background: #fff;
     border: 1px solid $babble-border;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 1rem;
   }
 
   &-author {
     font-weight: bold;
+    font-style: normal;
     align-self: center;    
     color: $babble-text-dark;
     margin-right: 0.5rem;
@@ -365,7 +366,7 @@ header.MainHeader {
   }
 }
 
-@media only screen and (max-width: $babble-desktop) {
+@media only screen and (min-width: $babble-mobile) and (max-width: $babble-desktop) {
   .u-hidden-mobile {
     display: none;
   }
