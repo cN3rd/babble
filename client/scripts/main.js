@@ -215,7 +215,7 @@
                             <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
                         </header>
                         <div class="Message-inner-contents">
-                            ${message.message}
+                            ${message.message.replace("\n", "<br>")}
                         </div>
                     </section>
                 </li>`;
@@ -254,6 +254,7 @@
         let message = compileMessage(textarea.value);
         window.Babble.postMessage(message, function (data) {
             textarea.value = "";
+            textarea.style.height = `139px`;
         });
     }
 
