@@ -1,35 +1,37 @@
 // main babble object.
 (function () {
-    debug = false;
-    host = "http://localhost:9000";
     'use strict';
+
+    // constants
+    const host = "http://localhost:9000";
+
+    // encapsulated variables
+    let counter = 0;
+    let session = {
+        currentMessage: "",
+        userInfo: {
+            name: "",
+            email: ""
+        },
+        uuid: ""
+    };
+
+    // babble stuff
     window.Babble = function () {
-        let session = {
-            currentMessage: "",
-            userInfo: {
-                name: "",
-                email: ""
-            },
-            uuid: ""
-        };
+        // load older session if exists
+        let lastSession = JSON.parse(localStorage.getItem("babble"));
+        if (lastSession)
+            session = lastSession;
 
-        if (debug) {
-            localStorage.clear();
-        } else {
-            // load older session if exists
-            let lastSession = JSON.parse(localStorage.getItem("babble"));
-            if (lastSession)
-                session = lastSession;
-
-            // generate UUID if you have none.
-            if (session.uuid === "")
-                ajax({
-                    method: "GET",
-                    action: "http://localhost:9000/uuid",
-                    success: function (data) {
-                        window.Babble.session.uuid = data;
-                    }
-                });
+        // generate UUID if you have none.
+        if (session.uuid === "" && !window.sinon) {
+            ajax({
+                method: "GET",
+                action: "http://localhost:9000/uuid",
+                success: function (data) {
+                    session.uuid = data;
+                }
+            });
         }
 
         // if noting is in the local storage
@@ -40,9 +42,9 @@
         // updating local storage
 
         let updateLocalStorage = function (userInfo) {
-            window.Babble.session.userInfo.name = userInfo.name;
-            window.Babble.session.userInfo.email = userInfo.email;
-            localStorage.setItem('babble', JSON.stringify(window.Babble.session));
+            session.userInfo.name = userInfo.name;
+            session.userInfo.email = userInfo.email;
+            localStorage.setItem('babble', JSON.stringify(session));
         };
 
         let updateCurrentMessage = function (messageContent) {
@@ -56,7 +58,7 @@
             ajax({
                 method: "POST",
                 action: `${host}/login`,
-                data: JSON.stringify({ uuid: window.Babble.session.uuid })
+                data: JSON.stringify({ uuid: session.uuid })
             })
             updateLocalStorage(userInfo);
         };
@@ -65,7 +67,7 @@
             ajax({
                 method: 'GET',
                 action: `${host}/messages?counter=${counter}`,
-                request_id: window.Babble.session.uuid,
+                request_id: session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -76,7 +78,7 @@
             ajax({
                 method: 'POST',
                 action: `${host}/messages`,
-                request_id: window.Babble.session.uuid,
+                request_id: session.uuid,
                 data: JSON.stringify(message),
                 success: function (data) {
                     callback(JSON.parse(data));
@@ -88,7 +90,7 @@
             ajax({
                 method: 'DELETE',
                 action: `${host}/messages/${id}`,
-                request_id: window.Babble.session.uuid,
+                request_id: session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -99,7 +101,7 @@
             ajax({
                 method: 'GET',
                 action: `${host}/stats`,
-                request_id: window.Babble.session.uuid,
+                request_id: session.uuid,
                 success: function (data) {
                     callback(JSON.parse(data));
                 }
@@ -107,7 +109,6 @@
         };
 
         return {
-            session: session,
             counter: 0,
 
             chatContainer: document.getElementById("js-chatContainer"),
@@ -125,44 +126,11 @@
         };
     }();
 
-    /* GUI FUNCTIONS */
+    // util functions
     function timeToTimestamp(date) {
         let hours = ("0" + date.getHours()).slice(-2);
         let minutes = ("0" + date.getMinutes()).slice(-2);
         return hours + ":" + minutes;
-    }
-
-    function getMessageHTML(message) {
-        // handle timestamp
-        let date = new Date(message.timestamp * 1);
-
-        // handle button code
-        if (message.name !== "" && message.email !== "") {
-            message.imageUrl = `http://localhost:9000/avatar/?mail=${message.email}`;
-        } else {
-            message.name = "Anonymous";
-            message.imageUrl = "./images/anon.png";
-        }
-
-        let buttoncode = "";
-        console.log(message.email === window.Babble.session.email);
-        if ((message.uuid && message.uuid === window.Babble.session.uuid) || (!message.uuid && message.email === window.Babble.session.userInfo.email)) {
-            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>";
-        }
-
-        // handle template code
-        return `<li class="Message" id="msg-${message.id}">
-                    <img src="${message.imageUrl}" alt="" class="Message-image" />
-                    <section class="Message-inner">
-                        <header class="Message-innerHead FlexGridRow">
-                            <span class="Message-author">${message.name}</span>
-                            <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
-                        </header>
-                        <div class="Message-inner-contents">
-                            ${message.message}
-                        </div>
-                    </section>
-                </li>`;
     }
 
     function htmlToDOM(htmlStr) {
@@ -172,29 +140,6 @@
         return div.firstElementChild;
     }
 
-    function deleteMessageDOM(messageID) {
-        window.Babble.chatWindow.removeChild(document.getElementById("msg-" + messageID));
-    }
-
-    // adds a message visually on the screen
-    function addMessageDOM(message) {
-        // dirty hack to create the element
-        let messageDOM = htmlToDOM(getMessageHTML(message));
-
-        // delete button
-        let messageDelBtn = messageDOM.getElementsByClassName("js-deleteMsgBtn")[0];
-        if (messageDelBtn) {
-            messageDelBtn.addEventListener("click", function () {
-                window.Babble.deleteMessage(message.id, function () { })
-            });
-        }
-
-        // append to chat window
-        window.Babble.chatWindow.appendChild(messageDOM);
-        window.Babble.chatContainer.scrollTop = window.Babble.chatWindow.scrollHeight;
-    }
-
-    // helper function to add auto-resize capabilities.
     function autoResize(elem, minHeight, maxHeight) {
         elem.addEventListener("input", function (event) {
             if (minHeight > elem.scrollHeight) {
@@ -208,32 +153,16 @@
         });
     }
 
-    // function that compiles a message
     function compileMessage(content) {
         return {
-            name: window.Babble.session.userInfo.name,
-            email: window.Babble.session.userInfo.email,
+            name: session.userInfo.name,
+            email: session.userInfo.email,
             message: content,
             timestamp: Date.now().toString(),
             id: 0
         };
     }
 
-    function sendMessage(e, textarea) {
-        e.preventDefault(); // prevent refresh
-
-        if (textarea.value == "") {
-            alert("You can't have an empty message");
-            return;
-        }
-
-        let message = compileMessage(textarea.value);
-        window.Babble.postMessage(message, function (data) {
-            textarea.value = "";
-        });
-    }
-
-    // a small ajax function. used to be a promise-based function
     function ajax(options) {
         var xhr = new XMLHttpRequest();
 
@@ -259,52 +188,133 @@
         xhr.send(options.data);
     }
 
-    // function that registers certain events.
+    // DOM Stuff
+    function getMessageHTML(message) {
+        // handle timestamp
+        let date = new Date(message.timestamp * 1);
+
+        // handle button code
+        if (message.name !== "" && message.email !== "") {
+            message.imageUrl = `http://localhost:9000/avatar/?mail=${message.email}`;
+        } else {
+            message.name = "Anonymous";
+            message.imageUrl = "./images/anon.png";
+        }
+
+        let buttoncode = "";
+        if (message.uuid === session.uuid) {
+            buttoncode = "\n<button class=\"Message-deleteBtn js-deleteMsgBtn\" aria-label=\"message\">X</button>";
+        }
+
+        // handle template code
+        return `<li class="Message" id="msg-${message.id}">
+                    <img src="${message.imageUrl}" alt="" class="Message-image" />
+                    <section class="Message-inner">
+                        <header class="Message-innerHead FlexGridRow">
+                            <span class="Message-author">${message.name}</span>
+                            <time class="Message-time" datetime="${date.toISOString()}">${timeToTimestamp(date)}</time>${buttoncode}
+                        </header>
+                        <div class="Message-inner-contents">
+                            ${message.message}
+                        </div>
+                    </section>
+                </li>`;
+    }
+
+    function deleteMessageDOM(messageID) {
+        window.Babble.chatWindow.removeChild(document.getElementById("msg-" + messageID));
+    }
+
+    function addMessageDOM(message) {
+        // dirty hack to create the element
+        let messageDOM = htmlToDOM(getMessageHTML(message));
+
+        // delete button
+        let messageDelBtn = messageDOM.getElementsByClassName("js-deleteMsgBtn")[0];
+        if (messageDelBtn) {
+            messageDelBtn.addEventListener("click", function () {
+                window.Babble.deleteMessage(message.id, function () { })
+            });
+        }
+
+        // append to chat window
+        window.Babble.chatWindow.appendChild(messageDOM);
+        window.Babble.chatContainer.scrollTop = window.Babble.chatWindow.scrollHeight;
+    }
+
+    // events & loading
+    function sendMessage(e, textarea) {
+        e.preventDefault(); // prevent refresh
+
+        if (textarea.value == "") {
+            alert("You can't have an empty message");
+            return;
+        }
+
+        let message = compileMessage(textarea.value);
+        window.Babble.postMessage(message, function (data) {
+            textarea.value = "";
+        });
+    }
+
     (function load() {
         // signup dialog
         let loginBtn = document.getElementById("js-loginBtn");
         let anonBtn = document.getElementById("js-stayAnonBtn");
 
-        loginBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            window.Babble.register({
-                name: document.getElementById("signup-fullname").value,
-                email: document.getElementById("signup-email").value
+        // login button event
+        if (loginBtn) {
+            loginBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                window.Babble.register({
+                    name: document.getElementById("signup-fullname").value,
+                    email: document.getElementById("signup-email").value
+                });
+                initiateLongPolls();
+                document.getElementById("js-signupDialog").classList.add("u-hidden");
             });
-            initiateLongPolls();
-            document.getElementById("js-signupDialog").classList.add("u-hidden");
-        });
+        }
 
-        anonBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            window.Babble.register({
-                name: "",
-                email: ""
+        // anon button event
+        if (anonBtn) {
+            anonBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                window.Babble.register({
+                    name: "",
+                    email: ""
+                });
+                initiateLongPolls();
+                document.getElementById("js-signupDialog").classList.add("u-hidden");
             });
-            initiateLongPolls();
-            document.getElementById("js-signupDialog").classList.add("u-hidden");
-        });
+        }
 
         // new message form events
         let newMsgForm = document.getElementById("js-newMessage-form");
         let textarea = document.getElementById("newMessage-contents");
-        newMsgForm.addEventListener("submit", e => sendMessage(e, textarea));
-        autoResize(textarea, 100, 300);
+        if (newMsgForm && textarea) {
+            newMsgForm.addEventListener("submit", e => sendMessage(e, textarea));
+            autoResize(textarea, 100, 300);
 
-        // event listeners
-        window.addEventListener('load', function (event) {
-            if (window.Babble.session.userInfo.email !== "") {
-                document.getElementById("js-signupDialog").remove();
-                window.Babble.register(window.Babble.session.userInfo);
-                initiateLongPolls();
-            }
-        });
+            // load event listener
+            window.addEventListener('load', function (event) {
+                // load previous message
+                textarea.value = session.currentMessage;
 
-        window.addEventListener('beforeunload', function (event) {
-            navigator.sendBeacon("http://localhost:9000/logout", JSON.stringify({ uuid: window.Babble.session.uuid }));
-        });
+                // disable login if already logged in
+                if (session.userInfo.email !== "") {
+                    document.getElementById("js-signupDialog").remove();
+                    window.Babble.register(session.userInfo);
+                    initiateLongPolls();
+                }
+            });
+
+            // unload event listener
+            window.addEventListener('beforeunload', function (event) {
+                window.Babble.updateCurrentMessage(textarea.value);
+                navigator.sendBeacon("http://localhost:9000/logout", JSON.stringify({ uuid: session.uuid }));
+            });
+        }
     })();
-
 
     function initiateLongPolls() {
         // long polling for stats.
@@ -319,14 +329,14 @@
 
         // long polling for messages
         (function long_poll() {
-            window.Babble.getMessages(window.Babble.counter, function (data) {
+            window.Babble.getMessages(counter, function (data) {
                 if (data.delete) {
                     // delete from dom.
                     deleteMessageDOM(data.id);
                 }
                 else {
                     // update internal counter
-                    window.Babble.counter += data.length;
+                    counter += data.length;
 
                     // visuallly display on the DOM
                     data.forEach(function (message) {
@@ -339,4 +349,5 @@
             });
         })();
     }
+
 })();
