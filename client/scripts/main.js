@@ -59,7 +59,7 @@
                 method: "POST",
                 action: `${host}/login`,
                 data: JSON.stringify({ uuid: session.uuid })
-            })
+            });
             updateLocalStorage(userInfo);
         };
 
@@ -230,7 +230,7 @@
         let messageDelBtn = messageDOM.getElementsByClassName("js-deleteMsgBtn")[0];
         if (messageDelBtn) {
             messageDelBtn.addEventListener("click", function () {
-                window.Babble.deleteMessage(message.id, function () { })
+                window.Babble.deleteMessage(message.id, function () { });
             });
         }
 

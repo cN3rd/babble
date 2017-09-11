@@ -14,7 +14,9 @@ The server runs at localhost:9000, and the webapp runs at localhost:8080.
 * `npm start` - runs both the client and the server normally.
 * `npm test` - runs the server tests using mocha & opens the folder in port 8081
 * `npm run client` - Runs the client server using `http-server`
+* `npm run client-test` - Runs the client tests in localhost:8081
 * `npm run server` - Runs the server using vanilla Node.js
 * `npm run server-dev` - Runs the server script using `nodemon`
+* `npm run server-tests` - Runs the server tests using `mocha`
 * `sass-compile` - Compiles the SCSS code in `/client/style`.
 * `sass-watch` - Watches the SCSS code in `/client/style` and recompiles it each time it is changed.

@@ -7,11 +7,13 @@
     "test": "test"
   },
   "scripts": {
-    "start": "concurrently \"nodemon \\\"server/main.js\\\"\" \"http-server \\\"client/\\\"\"",
-    "test": "concurrently \"mocha \\\"test/server\\\"\" \"http-server -p 8081\"",
+    "start": "concurrently \"node \\\"server/main.js\\\"\" \"http-server \\\"client/\\\"\"",
+    "test": "concurrently \"mocha --recursive \\\"test/server\\\"\" \"http-server -p 8081\"",
     "client": "http-server \"client/\"",
+    "client-test": "http-server -p 8081",
     "server": "node \"server/main.js\"",
     "server-dev": "nodemon \"server/main.js\"",
+    "server-test": "mocha --recursive \"test/server\"",
     "sass-compile": "node-sass client/styles/main.scss client/styles/main.css",
     "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch"
   },

@@ -3,7 +3,7 @@ const deep_equals = require('deep-equals');
 const debug = true;
 
 // wrapper function to allow only the use of certain methods via express.js
-const onlyAllow = app => function (path, methods = ['GET'], ...callbacks) {
+const onlyAllow = app => function (path, methods, ...callbacks) {
     app.all(path, function (req, res, next) {
         if (!methods.includes(req.method)) {
             respondWithError(res, 405, {
@@ -15,7 +15,7 @@ const onlyAllow = app => function (path, methods = ['GET'], ...callbacks) {
             return next();
         }
     }, ...callbacks);
-}
+};
 
 // allows json parsing
 const jsonParser = function (req, res, next) {
@@ -23,11 +23,11 @@ const jsonParser = function (req, res, next) {
     req.on('data', (chunk) => {
         rawBody.push(chunk);
     }).on('end', () => {
-        req.rawBody = Buffer.concat(rawBody).toString()
+        req.rawBody = Buffer.concat(rawBody).toString();
         req.body = JSON.parse(req.rawBody);
         next();
     });
-}
+};
 
 // helper function to generate page/json for errors
 let respondWithError = function (res, code = 404, data = {}) {
@@ -41,7 +41,7 @@ let respondWithError = function (res, code = 404, data = {}) {
             data: data
         });
     }
-}
+};
 
 const onlyKeys = (property) => (keys) => function (req, res, next) {
     const actualKeys = Object.keys(req[property]);
@@ -76,7 +76,7 @@ const onlyBodyKeys = onlyKeys('body');
 let extend = app => {
     app.onlyAllow = onlyAllow(app);
     return app;
-}
+};
 
 module.exports.respondWithError = respondWithError;
 module.exports.extend = extend;

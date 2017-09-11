@@ -1,5 +1,5 @@
 let storage = [];
-let messageSenders = [];
+let messageSenders = {};
 let lastMsgId = -1;
 
 function addMessage(message) {
@@ -24,7 +24,7 @@ function getMessages(counter) {
 function deleteMessage(id) {
     // parses id and tries to find it
     id = +id;
-    msgId = storage.findIndex(msg => msg.id === id);
+    let msgId = storage.findIndex(msg => msg.id === id);
 
     // check if message exists
     if (msgId == -1)
@@ -35,12 +35,19 @@ function deleteMessage(id) {
     return true;
 }
 
+function clear() {
+    lastMsgId = -1;
+    storage = [];
+    messageSenders = {};
+}
+
 module.exports = {
     addMessage: addMessage,
+    count: () => storage.length,
+    clear: clear,
+    deleteMessage: deleteMessage,
     getMessages: getMessages,
     getSingle: getSingleMessage,
-    setSender: (mid, sender_id) => messageSenders[mid] = sender_id,
     getSender: (mid) => messageSenders[mid],
-    deleteMessage: deleteMessage,
-    count: () => storage.length
+    setSender: (mid, sender_id) => messageSenders[mid] = sender_id
 };
