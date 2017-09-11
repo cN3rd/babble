@@ -86,9 +86,9 @@ app.get("/messages",
             });
         }
         else {
-            statEmitter.emit("stats", "");
             res.json(messages.getMessages(+req.query.counter));
         }
+        statEmitter.emit("stats", "");
     });
 
 // Add message page
@@ -101,13 +101,8 @@ app.post("/messages",
         messages.addMessage(message);
 
         // add user metadata
-        // TODO: check
-        if (message.email === "") {
-            message.uuid = req.get("X-Request-Id");
-            messages.setSender(message.id, req.get("X-Request-Id"));
-        } else {
-            messages.setSender(message.id, message.email);
-        }
+        message.uuid = req.get("X-Request-Id");
+        messages.setSender(message.id, req.get("X-Request-Id"));
 
         // notify all users
         emitter.emit("add", message);
@@ -124,7 +119,7 @@ app.delete("/messages/:id",
     extensions.customCheck((req, res, next) => Number.isInteger(+req.params.id), "an id is required"),
     extensions.customCheck((req, res, next) => messages.getSingle(+req.params.id), "message does not exist"),
     extensions.customCheck(function (req, res, next) {
-        return messages.getSender(+req.params.id) === messages.getSingle(+req.params.id).email || req.get("X-Request-Id"); // TODO: check
+        return messages.getSender(+req.params.id) === req.get("X-Request-Id");
     }, "user cannot delete messages he doesn't own."),
     function (req, res, next) {
         // delete messsage from db

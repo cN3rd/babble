@@ -16,25 +16,28 @@
         if (debug) {
             localStorage.clear();
         } else {
+            // load older session if exists
             let lastSession = JSON.parse(localStorage.getItem("babble"));
-            if (lastSession || session.userInfo.email !== "")
+            if (lastSession)
                 session = lastSession;
-        }
 
-        function getUUID() {
-            ajax({
-                method: "GET",
-                action: "http://localhost:9000/uuid",
-                success: function (data) {
-                    window.Babble.session.uuid = data;
-                }
-            })
+            // generate UUID if you have none.
+            if (session.uuid === "")
+                ajax({
+                    method: "GET",
+                    action: "http://localhost:9000/uuid",
+                    success: function (data) {
+                        window.Babble.session.uuid = data;
+                    }
+                });
         }
 
         // if noting is in the local storage
         if (localStorage.getItem("babble") === null) {
             localStorage.setItem('babble', JSON.stringify(session));
         }
+
+        // updating local storage
 
         let updateLocalStorage = function (userInfo) {
             window.Babble.session.userInfo.name = userInfo.name;
@@ -47,9 +50,9 @@
             localStorage.setItem('babble', JSON.stringify(session));
         };
 
+        // API FUNCTIONS
+
         let register = function (userInfo) {
-            if (userInfo.email === "")
-                getUUID();
             ajax({
                 method: "POST",
                 action: `${host}/login`,
@@ -116,7 +119,9 @@
             getMessages: getMessages,
             postMessage: postMessage,
             deleteMessage: deleteMessage,
-            getStats: getStats
+            getStats: getStats,
+
+            updateCurrentMessage: updateCurrentMessage
         };
     }();
 
@@ -296,12 +301,22 @@
         });
 
         window.addEventListener('beforeunload', function (event) {
-            navigator.sendBeacon("http://localhost:9000/logout", JSON.stringify({ uuid: window.Babble.session.uuid }))
+            navigator.sendBeacon("http://localhost:9000/logout", JSON.stringify({ uuid: window.Babble.session.uuid }));
         });
     })();
 
 
     function initiateLongPolls() {
+        // long polling for stats.
+        (function long_poll_updates() {
+            window.Babble.getStats(function (data) {
+                window.Babble.statsMessages.innerHTML = data.messages;
+                window.Babble.statsPeople.innerHTML = data.users;
+
+                long_poll_updates();
+            });
+        })();
+
         // long polling for messages
         (function long_poll() {
             window.Babble.getMessages(window.Babble.counter, function (data) {
@@ -321,16 +336,6 @@
                 }
                 // call the next long poll
                 long_poll();
-            });
-        })();
-
-        // long polling for stats.
-        (function long_poll_updates() {
-            window.Babble.getStats(function (data) {
-                window.Babble.statsMessages.innerHTML = data.messages;
-                window.Babble.statsPeople.innerHTML = data.users;
-
-                long_poll_updates();
             });
         })();
     }
