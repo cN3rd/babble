@@ -254,7 +254,7 @@
         let message = compileMessage(textarea.value);
         window.Babble.postMessage(message, function (data) {
             textarea.value = "";
-            textarea.style.height = `139px`;
+            textarea.style.height = "auto";
         });
     }
 

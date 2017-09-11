@@ -12,8 +12,8 @@
     "client": "http-server \"client/\"",
     "server": "node \"server/main.js\"",
     "server-dev": "nodemon \"server/main.js\"",
-    "sass-compile": "node-sass client/styles/main.scss client/styles/main.css --output-style compressed",
-    "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch --output-style compressed"
+    "sass-compile": "node-sass client/styles/main.scss client/styles/main.css",
+    "sass-watch": "node-sass client/styles/main.scss client/styles/main.css --watch"
   },
   "author": "cN3rd",
   "license": "ISC",
